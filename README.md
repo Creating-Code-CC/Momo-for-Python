@@ -1,2 +1,2 @@
 # Momo
-Momo is a Voice Recognition Packing Assistant
+A Voice Recognition Packing Assistant
