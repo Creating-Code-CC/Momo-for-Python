@@ -34,3 +34,7 @@ if __name__ == "__main__":
     print("You said: {}".format(command))
     if "beach" in command:
         print("Check The Weather")
+        print("sunscreen")
+        print("beach towels")
+        print("wallet")
+        print("sandles")
