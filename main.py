@@ -1,69 +1,75 @@
-import kivy
+from kivy.lang import Builder
 from kivymd.app import MDApp
-from kivy.base import Builder
-from kivy.app import App
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.button import Button
 
-import pyttsx3
 import speech_recognition as sr
+import pyttsx3
+engine=pyttsx3.init()
+voices=engine.getProperty('voices')
+engine.setProperty('voices,', voices[1].id)
+recognizer=sr.Recognizer()
 
-kivy - '''
-        MDScreen
+
+KV = '''
+MDScreen:
+    MDRaisedButton:
+        text: "Momo"
+        on_release: app.switch_theme_style()
+        pos_hint: {"center_x": .5, "center_y": .5}
 '''
 
-engine = pyttsx3.init()
-def recognize_speech_from_mic(recognizer, microphone):
 
-    # check that recognizer and microphone arguments are appropriate type
-    if not isinstance(recognizer, sr.Recognizer):
-        raise TypeError("`recognizer` must be `Recognizer` instance")
-
-    if not isinstance(microphone, sr.Microphone):
-        raise TypeError("`microphone` must be `Microphone` instance")
-
-    # adjust the recognizer sensitivity to ambient noise and record audio
-    # from the microphone
-    with microphone as source:
-        recognizer.adjust_for_ambient_noise(source)
-        audio = recognizer.listen(source)
-    
-    try:
-        cmd=recognizer.recognize_google(audio)
-    except sr.RequestError:
-        # API was unreachable or unresponsive
-        cmd = "API unavailable"
-    except sr.UnknownValueError:
-        # speech was unintelligible
-        cmd="Unable to recognize speech"
-    return cmd
-
-class Momo(App):
+class Momo(MDApp):
     def build(self, **kwargs):
-        self.Window = GridLayout()
-        self.Window.cols = 1
-        self.Logo = Label(text="Momo")
-        self.Window.add_widget(self.Logo)
-        self.Speak = Button(text="Speak")
-        self.Speak.bind(on_press=self.callback)
-        self.Window.add_widget(self.Speak)
-        return self.Window
+        if self.theme_cls.primary_palette == "Red":
+            engine.say("Red")
+            engine.runAndWait()
+        self.theme_cls.theme_style_switch_animation = True
+        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Purple"
+        return Builder.load_string(KV)
 
-    def callback(self, instance):
-        self.Speak.text = "Listening"
+    def switch_theme_style(self):
+        listening = True
+        engine.say("Speak")
+        engine.runAndWait()
         recognizer=sr.Recognizer()
         microphone=sr.Microphone()
-        cmd=recognize_speech_from_mic(recognizer, microphone)
-        self.command= Label(text="You said: {}".format(cmd))
-        self.Window.add_widget(self.command)
+        # check that recognizer and microphone arguments are appropriate type
+        if not isinstance(recognizer, sr.Recognizer):
+            raise TypeError("`recognizer` must be `Recognizer` instance")
+
+        if not isinstance(microphone, sr.Microphone):
+            raise TypeError("`microphone` must be `Microphone` instance")
+
+
+        # adjust the recognizer sensitivity to ambient noise and record audio
+        # from the microphone
+        with microphone as source:
+            recognizer.adjust_for_ambient_noise(source)
+            audio = recognizer.listen(source)
+    
+        try:
+            cmd=recognizer.recognize_google(audio)
+        except sr.RequestError:
+            # API was unreachable or unresponsive
+            cmd = "API unavailable"
+        except sr.UnknownValueError:
+            # speech was unintelligible
+            cmd="Unable to recognize speech"
         if "school" in cmd:
                 # testing
             engine.say("check the weather\nbring wallet.\n.full sail badge.\nschool bag.\nlap top.\ncharger.\nglasses.\npen.\nnotebook.\nDid you get everything?")
             engine.runAndWait()
-            self.response=Label(text="check the weather\nbring wallet.\n.full sail badge.\nschool bag.\nlap top.\ncharger.\nglasses.\npen.\nnotebook.\nDid you get everything?")
-            self.Window.add_widget(self.response)
+        elif "birthday" in cmd:
+                # testing
+            engine.say("Check the weather. Birthday Card. Wallet. Make sure to say happy birthday and to take plenty of pictures. Did you get everything?")
+            engine.runAndWait()
+     
 
-if __name__ == "__main__":  # run() triggers the class MoMo(App)
-        Momo().run()
+
+
+
+        
+
+
+Momo().run()
