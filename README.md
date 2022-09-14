@@ -7,7 +7,7 @@ To run the accompanying 'speechRecognitionConcept.py file you will need to insta
   2. pip install pyaudio
   3. pip install google-api-python-client # This one to be done in your project directory
   
-  Our project's Adroid Debug Bridge needs to have the same version as our WSL
+  Your project's Adroid Debug Bridge needs to have the same version as our WSL
   the accompanying adb files meet the compatible version requirements
   
   USEFULL LINKS
