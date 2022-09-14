@@ -1,55 +1,70 @@
+from email.mime import application
+from kivy.lang import Builder
+
+from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivymd.app import MDApp
-
+from kivymd.uix.label import MDLabel
+from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.boxlayout import BoxLayout
+from kivymd.uix.screen import MDScreen
 import speech_recognition as sr
 import pyttsx3
-engine=pyttsx3.init()
-voices=engine.getProperty('voices')
-engine.setProperty('voices,', voices[1].id)
-recognizer=sr.Recognizer()
-
-
+import requests
+base_url = "http://api.openweathermap.org/data/2.5/weather?"
+complete_url = base_url + "appid=dfe4fcca2e4626bac10b82115b7b5415" + "&q=Orlando"
+response = requests.get(complete_url)
+x = response.json()
+y = x["main"]
+current_temperature = y["temp"]
+celsius = current_temperature - 273.15
+fahrenheit = celsius * (9/5) + 32
+predictedWeather= round(fahrenheit)
+weatherpromt=" The temperature is " + str(predictedWeather) + " degrees"
+beach = weatherpromt + ",  Bathing Suit. Drinks. Snacks. Hat. Beach Towel. Sunglasses. Sunscreen. Water. Sandles. Wallet. Did you get everything?"
 KV = '''
-MDScreen:
-    MDRaisedButton:
-        text: "Momo"
-        on_release: app.switch_theme_style()
-        pos_hint: {"center_x": .5, "center_y": .5}
+MDBoxLayout:
+
+    # Will always be at the bottom of the screen.
+    MDBottomAppBar:
+
+        MDTopAppBar:
+            icon: "microphone"
+            on_action_button: app.switch_theme_style(self.icon)
+            type: "bottom"
+
+        MDScrollView:
+            MDList:
+                id: md_list
+                padding: 0
 '''
 
 
-class Momo(MDApp):
-    def build(self, **kwargs):
-        if self.theme_cls.primary_palette == "Red":
-            engine.say("Red")
-            engine.runAndWait()
-        self.theme_cls.theme_style_switch_animation = True
-        self.theme_cls.theme_style = "Dark"
-        self.theme_cls.primary_palette = "Purple"
+class Test(MDApp):
+    def build(self):
         return Builder.load_string(KV)
 
-    def switch_theme_style(self):
-        listening = True
-        engine.say("Speak")
-        engine.runAndWait()
-        recognizer=sr.Recognizer()
-        microphone=sr.Microphone()
+    def switch_theme_style(self, instance):
+        self.engine=pyttsx3.init()
+        self.recognizer=sr.Recognizer()
+        self.microphone=sr.Microphone()
+        self.engine.say("Speak")
+        self.engine.runAndWait()
         # check that recognizer and microphone arguments are appropriate type
-        if not isinstance(recognizer, sr.Recognizer):
+        if not isinstance(self.recognizer, sr.Recognizer):
             raise TypeError("`recognizer` must be `Recognizer` instance")
 
-        if not isinstance(microphone, sr.Microphone):
+        if not isinstance(self.microphone, sr.Microphone):
             raise TypeError("`microphone` must be `Microphone` instance")
-
 
         # adjust the recognizer sensitivity to ambient noise and record audio
         # from the microphone
-        with microphone as source:
-            recognizer.adjust_for_ambient_noise(source)
-            audio = recognizer.listen(source)
+        with self.microphone as source:
+            self.recognizer.adjust_for_ambient_noise(source)
+            self.audio = self.recognizer.listen(source)
     
         try:
-            cmd=recognizer.recognize_google(audio)
+            cmd=self.recognizer.recognize_google(self.audio)
         except sr.RequestError:
             # API was unreachable or unresponsive
             cmd = "API unavailable"
@@ -58,18 +73,25 @@ class Momo(MDApp):
             cmd="Unable to recognize speech"
         if "school" in cmd:
                 # testing
-            engine.say("check the weather\nbring wallet.\n.full sail badge.\nschool bag.\nlap top.\ncharger.\nglasses.\npen.\nnotebook.\nDid you get everything?")
-            engine.runAndWait()
+            self.engine.say(weatherpromt + ",   bring wallet. full sail badge. school bag. lap top. charger. glasses. pen. notebook. Did you get everything?")
+            self.engine.runAndWait()
         elif "birthday" in cmd:
                 # testing
-            engine.say("Check the weather. Birthday Card. Wallet. Make sure to say happy birthday and to take plenty of pictures. Did you get everything?")
-            engine.runAndWait()
-     
+            self.engine.say(weatherpromt + ",  Birthday Card. Wallet. Make sure to say happy birthday and to take plenty of pictures. Did you get everything?")
+            self.engine.runAndWait()
+        elif "beach" in cmd:
+                # testing
+            MDLabel(text="Hello", pos_hint={"center_x": .5, "center_y": .5})
+            self.engine.say(weatherpromt + ",  Bathing Suit. Drinks. Snacks. Hat. Beach Towel. Sunglasses. Sunscreen. Water. Sandles. Wallet. Did you get everything?")
+            self.engine.runAndWait()
+        elif "fair" in cmd:
+                # testing
+            self.engine.say(weatherpromt + ",  Check the weather. Cash for games and concession stands. Hand sanitizer. Wallet. Did you get everything?")
+            self.engine.runAndWait()
+        elif "movies" in cmd:
+                # testing
+            self.engine.say(weatherpromt + ",  Popcorn and Soda Money. Movie Tickets. Sweater. Wallet. Did you get everything?")
+            self.engine.runAndWait()
 
 
-
-
-        
-
-
-Momo().run()
+Test().run()
