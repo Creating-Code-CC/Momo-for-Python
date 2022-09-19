@@ -1,6 +1,7 @@
 from email.mime import application
 from kivy.lang import Builder
-
+from kivy.properties import StringProperty
+from kivymd.uix.card import MDCardSwipe
 from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivymd.app import MDApp
@@ -22,27 +23,71 @@ fahrenheit = celsius * (9/5) + 32
 predictedWeather= round(fahrenheit)
 weatherpromt=" The temperature is " + str(predictedWeather) + " degrees"
 beach = weatherpromt + ",  Bathing Suit. Drinks. Snacks. Hat. Beach Towel. Sunglasses. Sunscreen. Water. Sandles. Wallet. Did you get everything?"
+beachList = [weatherpromt,"Bathing Suit","Drinks", "Snacks", "Hat", "Beach", "Towel", "Sunglasses", "Sunscreen", "Water", "Sandles", "Wallet", "Did you get everything?"]
 KV = '''
-MDBoxLayout:
+<SwipeToDeleteItem>:
+    size_hint_y: None
+    height: content.height
 
-    # Will always be at the bottom of the screen.
-    MDBottomAppBar:
+    MDCardSwipeLayerBox:
+        padding: "8dp"
 
+        MDIconButton:
+            icon: "trash-can"
+            pos_hint: {"center_y": .5}
+            on_release: app.remove_item(root)
+
+    MDCardSwipeFrontBox:
+
+        OneLineListItem:
+            id: content
+            text: root.text
+            _no_ripple_effect: True
+MDScreen:
+    MDBoxLayout:
+        id: box
+        orientation: "vertical"
         MDTopAppBar:
-            icon: "microphone"
-            on_action_button: app.switch_theme_style(self.icon)
-            type: "bottom"
+            elevation: 4
+            title: "Momo"
 
         MDScrollView:
+
             MDList:
                 id: md_list
                 padding: 0
+
+
+        # Will always be at the bottom of the screen.
+        MDBottomAppBar:
+
+            MDTopAppBar:
+                icon: "microphone"
+                on_action_button: app.switch_theme_style(self.icon)
+                type: "bottom"
+
 '''
 
+class SwipeToDeleteItem(MDCardSwipe):
+    text = StringProperty()
 
 class Test(MDApp):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Blue"
+        self.screen = Builder.load_string(KV)
+
     def build(self):
-        return Builder.load_string(KV)
+        return self.screen
+    def remove_item(self, instance):
+        self.screen.ids.md_list.remove_widget(instance)
+
+    # def on_start(self):
+    #     for i in range(10):
+    #         self.screen.ids.md_list.add_widget(
+    #             SwipeToDeleteItem(text=f"One-line item {beachList[i]}")
+    #         )
 
     def switch_theme_style(self, instance):
         self.engine=pyttsx3.init()
@@ -81,7 +126,9 @@ class Test(MDApp):
             self.engine.runAndWait()
         elif "beach" in cmd:
                 # testing
-            MDLabel(text="Hello", pos_hint={"center_x": .5, "center_y": .5})
+            for i in range(10):
+                self.screen.ids.md_list.add_widget(
+                SwipeToDeleteItem(text=f"{beachList[i]}"))
             self.engine.say(weatherpromt + ",  Bathing Suit. Drinks. Snacks. Hat. Beach Towel. Sunglasses. Sunscreen. Water. Sandles. Wallet. Did you get everything?")
             self.engine.runAndWait()
         elif "fair" in cmd:
