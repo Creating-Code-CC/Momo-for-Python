@@ -30,7 +30,9 @@ birthdayList= [weatherpromt,"Birthday Card","Wallet","Make sure to say happy bir
 fairList = [weatherpromt,"Cash for tickets, games and concession stands","Hand sanitizer","Wallet", "Did you get everything?"]
 movieList = [weatherpromt,"Cash for tickets, popcorn and Soda","Movie Tickets","Sweater","Wallet","Did you get everything?"]
 footballList = [weatherpromt,"Football tickets","Team Jersey","Bring a friend","Props","insect repellent","Wallet","Did you get everything?"]
-
+Custom_List_Keywords = ["Create","Make","New"]
+chop_string = "to the list"
+created_list = {}
 KV = '''
 <SwipeToDeleteItem>:
     size_hint_y: None
@@ -76,8 +78,8 @@ MDScreen:
                 type: "bottom"
 
 '''
-openai.api_key = ("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")
-response = openai.Completion.create(model="text-davinci-002", prompt="Say this is a test", temperature=0, max_tokens=6)
+# openai.api_key = ("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")
+# response = openai.Completion.create(model="text-davinci-002", prompt="Say this is a test", temperature=0, max_tokens=6)
 
 class SwipeToDeleteItem(MDCardSwipe):
     text = StringProperty()
@@ -128,6 +130,24 @@ class Test(MDApp):
         except sr.UnknownValueError:
             # speech was unintelligible
             cmd="Unable to recognize speech"
+        
+        for x in created_list:
+            if x in cmd:
+                tmp = created_list[x].split()
+                for i in range(len(tmp)):
+                    self.screen.ids.md_list.add_widget(
+                    SwipeToDeleteItem(text=f"{tmp[i]}")
+                    )
+                if self.voice == True:
+                    self.engine.say(weatherpromt + cmd)
+                    self.engine.runAndWait()
+                else:
+                    return
+            else:
+                pass
+
+            
+                
         if "school" in cmd:
                 # testing
             for i in range(9):
@@ -180,6 +200,22 @@ class Test(MDApp):
                 # testing
             if self.voice == True:
                 self.engine.say(weatherpromt + ", Football tickets. Team Jersey. Bring a friend. Props.insect repellent. Wallet. Did you get everything?")
+                self.engine.runAndWait()
+                
+        elif "Create" or "Make" or "New" in cmd:
+            user_list = cmd.partition("called")
+            new_list = user_list[-1].split() #ex: say "create a list called shopping" tuple = ('create a list','called','shopping')
+            add_to_list = new_list[0]
+            clean_string = cmd.replace(chop_string, '')
+            old_cmd, parsed, cmd = clean_string.partition("add") # returns tuple, beginning, middle, end
+            created_list[add_to_list] = cmd
+            cmd_list = cmd.split()
+            for i in range(len(cmd_list)):
+                self.screen.ids.md_list.add_widget(
+                SwipeToDeleteItem(text=f"{cmd_list[i]}")
+            )
+            if self.voice == True:
+                self.engine.say(weatherpromt + cmd)
                 self.engine.runAndWait()
 
     def disable_voice(self):
