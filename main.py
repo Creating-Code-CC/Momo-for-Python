@@ -139,7 +139,7 @@ class Test(MDApp):
                     SwipeToDeleteItem(text=f"{tmp[i]}")
                     )
                 if self.voice == True:
-                    self.engine.say(weatherpromt + cmd)
+                    self.engine.say(weatherpromt + created_list[x])
                     self.engine.runAndWait()
                 else:
                     return
@@ -206,8 +206,8 @@ class Test(MDApp):
             user_list = cmd.partition("called")
             new_list = user_list[-1].split() #ex: say "create a list called shopping" tuple = ('create a list','called','shopping')
             add_to_list = new_list[0]
-            clean_string = cmd.replace(chop_string, '')
-            old_cmd, parsed, cmd = clean_string.partition("add") # returns tuple, beginning, middle, end
+            #clean_string = cmd.replace(chop_string, '')
+            old_cmd, parsed, cmd = cmd.partition("add") # returns tuple, beginning, middle, end
             created_list[add_to_list] = cmd
             cmd_list = cmd.split()
             for i in range(len(cmd_list)):
